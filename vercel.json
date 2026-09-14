@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/package.json"
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "@database-url",
+    "ADMIN_EMAIL": "@admin-email",
+    "ADMIN_PASSWORD": "@admin-password",
+    "JWT_SECRET": "@jwt-secret"
+  }
+}

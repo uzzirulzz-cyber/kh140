@@ -1,0 +1,104 @@
+
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+model User { id String @id @default(cuid()) email String @unique role String @default("admin") createdAt DateTime @default(now()) }
+model Business {
+  id String @id @default(cuid())
+  businessName String
+  legalName String?
+  description String?
+  industry String?
+  category String?
+  subcategory String?
+  country String
+  state String?
+  city String
+  area String?
+  postalCode String?
+  address String?
+  latitude Float?
+  longitude Float?
+  website String?
+  domain String?
+  phone String?
+  phoneIntl String?
+  email String?
+  emailStatus String @default("UNVERIFIED")
+  emailConfidence Float @default(0)
+  whatsapp String?
+  whatsappStatus String @default("PHONE_ONLY")
+  whatsappConfidence Float @default(0)
+  socialLinks Json?
+  sources Json?
+  primarySource String?
+  sourceUrls Json?
+  leadScore Int @default(0)
+  status String @default("ACTIVE")
+  campaignId String?
+  campaign Campaign? @relation(fields: [campaignId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([email]) @@index([domain]) @@index([city]) @@index([country]) @@index([category]) @@index([campaignId])
+}
+model Campaign {
+  id String @id @default(cuid())
+  name String
+  filters Json
+  target Int @default(1000)
+  status String @default("DRAFT")
+  progress Float @default(0)
+  stats Json?
+  sourcesUsed String[]
+  startedAt DateTime?
+  completedAt DateTime?
+  createdAt DateTime @default(now())
+  businesses Business[]
+  jobs ExtractionJob[]
+}
+model ExtractionJob {
+  id String @id @default(cuid())
+  campaignId String
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+  provider String
+  status String @default("QUEUED")
+  progress Int @default(0)
+  resultCount Int @default(0)
+  error String?
+  startedAt DateTime?
+  completedAt DateTime?
+  createdAt DateTime @default(now())
+}
+model Source {
+  id String @id @default(cuid())
+  key String @unique
+  name String
+  category String
+  purpose String[]
+  status String @default("ACTIVE")
+  priority Int @default(10)
+  quota Int?
+  requests Int @default(0)
+  errorRate Float @default(0)
+  lastSuccess DateTime?
+  lastError String?
+  config Json?
+  enabled Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+model SuppressionEntry {
+  id String @id @default(cuid())
+  type String
+  value String @unique
+  reason String?
+  createdAt DateTime @default(now())
+}
+model AuditLog {
+  id String @id @default(cuid())
+  action String
+  entity String
+  entityId String?
+  meta Json?
+  createdAt DateTime @default(now())
+}
+model SystemSetting { key String @id value Json updatedAt DateTime @updatedAt }
